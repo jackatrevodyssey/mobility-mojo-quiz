@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Most Accessible Company — Live Audience Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black:  #210346;
+    --indigo: #370178;
+    --cyan:   #09FFB9;
+    --white:  #FCEFFF;
+    --slate:  #3a0f6b;
+    --muted:  #6B2BAA;
+    --pink:   #FF0998;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* Visually hidden but accessible to screen readers */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 72% 8%,  rgba(255,255,255,0.18) 0%, transparent 100%),
+      radial-gradient(1px 1px at 43% 78%, rgba(255,255,255,0.2)  0%, transparent 100%),
+      radial-gradient(1px 1px at 88% 55%, rgba(255,255,255,0.18) 0%, transparent 100%),
+      radial-gradient(1px 1px at 5%  62%, rgba(255,255,255,0.12) 0%, transparent 100%),
+      radial-gradient(2px 2px at 29% 15%, rgba(9,255,185,0.12)   0%, transparent 100%),
+      radial-gradient(2px 2px at 80% 85%, rgba(255,9,152,0.12)   0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app {
+    position: relative; z-index: 1;
+    width: 100vw; height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 28px 36px 20px;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--slate);
+  }
+
+  .question-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    opacity: 0.8;
+    margin-bottom: 6px;
+  }
+
+  .question-text {
+    font-size: clamp(16px, 2vw, 26px);
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    max-width: 65%;
+    line-height: 1.2;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .pulse-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--cyan);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.35; transform: scale(0.65); }
+  }
+
+  /* ── Main body ── */
+  #main-body {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    overflow: hidden;
+    padding-top: 4px;
+  }
+
+  /* ── Leaderboard ── */
+  #leaderboard {
+    padding: 20px 24px 20px 0;
+    border-right: 1px solid var(--slate);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .lb-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* Semantic ordered list */
+  #lb-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  #lb-list li {
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid transparent;
+    transition: background 0.4s ease, border-color 0.4s ease;
+  }
+
+  #lb-list li:focus {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+  }
+
+  #lb-list li.rank-1 { background: rgba(255,9,152,0.08);  border-color: rgba(255,9,152,0.25); }
+  #lb-list li.rank-2 { background: rgba(9,255,185,0.06);  border-color: rgba(9,255,185,0.15); }
+  #lb-list li.rank-3 { background: rgba(149,70,219,0.06); border-color: rgba(149,70,219,0.15); }
+
+  .lb-rank {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .rank-1 .lb-rank { color: var(--pink); }
+  .rank-2 .lb-rank { color: var(--cyan); }
+  .rank-3 .lb-rank { color: #9546DB; }
+
+  .lb-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rank-1 .lb-name { font-weight: 800; }
+
+  .lb-count {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .rank-1 .lb-count { color: var(--pink); }
+  .rank-2 .lb-count { color: var(--cyan); }
+
+  .lb-bar-wrap {
+    grid-column: 2 / 4;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+
+  .lb-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .rank-1 .lb-bar { background: var(--pink); }
+  .rank-2 .lb-bar { background: var(--cyan); }
+  .rank-3 .lb-bar { background: #9546DB; }
+  .lb-bar-other   { background: var(--muted); }
+
+  /* ── Cloud stage ── */
+  #cloud-stage {
+    position: relative;
+    overflow: hidden;
+    padding: 16px 0 16px 24px;
+  }
+
+  #measure-canvas { display: none; }
+
+  .cloud-word {
+    position: absolute;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: default;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .cloud-word.visible { opacity: 1; }
+
+  /* ── Footer ── */
+  footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 1px solid var(--slate);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .footer-stats { display: flex; gap: 28px; }
+
+  .stat { display: flex; flex-direction: column; align-items: flex-start; }
+
+  .stat-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .refresh-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+  }
+
+  .countdown-bar-wrap {
+    width: 100px; height: 2px;
+    background: var(--slate);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .countdown-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--muted), var(--cyan));
+    border-radius: 2px;
+    transition: width 1s linear;
+  }
+
+  .refresh-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── Status overlay ── */
+  #status-overlay {
+    position: absolute; inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: var(--muted);
+    font-size: 14px;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  #status-overlay.hidden { opacity: 0; }
+
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--slate);
+    border-top-color: var(--cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!--
+  Screen reader announcer regions.
+  - #sr-announcer fires assertively on each data refresh (summary of current state)
+  - #sr-status fires politely for non-urgent status messages
+  Both are visually hidden but fully readable by assistive technology.
+-->
+<div id="sr-announcer" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+<div id="sr-status"    aria-live="polite"    aria-atomic="true" class="sr-only"></div>
+
+<canvas id="measure-canvas" aria-hidden="true"></canvas>
+
+<div id="app">
+
+  <header role="banner">
+    <div>
+      <p class="question-eyebrow" aria-hidden="true">Live audience responses</p>
+      <h1 class="question-text">Which company do you think is the most accessible, globally?</h1>
+    </div>
+    <!-- Live badge is decorative; screen readers get state via sr-announcer -->
+    <div class="live-badge" aria-hidden="true">
+      <div class="pulse-dot"></div>
+      Live
+    </div>
+  </header>
+
+  <div id="main-body" role="main">
+
+    <!--
+      Leaderboard: the primary accessible interface.
+      aria-live="polite" so updates are announced after the user finishes
+      their current interaction, not cutting across it.
+      aria-label gives the landmark a clear name for screen reader navigation.
+    -->
+    <nav id="leaderboard" aria-label="Top responses leaderboard">
+      <p class="lb-title" aria-hidden="true">Top responses</p>
+      <ol id="lb-list" aria-label="Companies ranked by number of votes">
+        <!-- Populated by JS — each <li> gets a full aria-label e.g.
+             "1st place, Coca-Cola, 18 votes" -->
+      </ol>
+    </nav>
+
+    <!--
+      Word cloud: purely visual. Explicitly hidden from assistive technology.
+      The leaderboard above carries all the same information accessibly.
+    -->
+    <div id="cloud-stage" aria-hidden="true" role="presentation">
+      <div id="status-overlay">
+        <div class="spinner"></div>
+        <span>Pulling responses…</span>
+      </div>
+    </div>
+
+  </div>
+
+  <footer role="contentinfo">
+    <!--
+      Footer stats: aria-label on each item gives screen readers full context
+      rather than just reading the number.
+    -->
+    <div class="footer-stats" role="region" aria-label="Summary statistics">
+      <div class="stat">
+        <span class="stat-val" id="stat-responses" aria-label="Total responses">—</span>
+        <span class="stat-label" aria-hidden="true">Responses</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val" id="stat-companies" aria-label="Number of companies named">—</span>
+        <span class="stat-label" aria-hidden="true">Companies named</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val" id="stat-leader" aria-label="Current leading answer">—</span>
+        <span class="stat-label" aria-hidden="true">Leading answer</span>
+      </div>
+    </div>
+    <div class="refresh-info" aria-hidden="true">
+      <span class="refresh-label" id="refresh-label">Refreshing in 60s</span>
+      <div class="countdown-bar-wrap">
+        <div class="countdown-bar" id="countdown-bar" style="width:100%"></div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const CONFIG = {
+  // ── Per-deployment settings ── update these for each client/event ──────────
+  // apiKey is no longer needed here — it lives in the Cloudflare Worker env var
+  listId:         '215',                              // HubSpot active list ID
+  property:       'most_accessible_company_quiz',     // Contact property internal name
+  proxyBase:      'https://hubspot-proxy.mike-64a.workers.dev', // Cloudflare Worker URL
+  // ── Display settings ──────────────────────────────────────────────────────
+  refreshSeconds: 60,
+  maxContacts:    500,
+};
+
+// ─── CONTENT MODERATION ───────────────────────────────────────────────────────
+// Layer 1: Hardcoded blocklist — normalised terms that are always rejected.
+// Add to this list as needed before each event.
+const BLOCKLIST = new Set([
+  'fuck', 'shit', 'cunt', 'bastard', 'wanker', 'twat', 'arse', 'arsehole',
+  'asshole', 'bitch', 'dick', 'cock', 'prick', 'bollocks', 'bellend',
+  'nigger', 'nigga', 'paki', 'chink', 'spastic', 'retard', 'tranny',
+  'faggot', 'dyke', 'kike', 'spic', 'wetback', 'kraut', 'nazi',
+  'hitler', 'kkk',
+]);
+
+// Layer 2: AI moderation cache — term → true (safe) | false (blocked).
+// Populated on first encounter, reused on subsequent refreshes.
+const moderationCache = new Map();
+
+// AI moderation via Anthropic API.
+// Only called for terms not already in the cache.
+async function isTermSafe(term) {
+  // Layer 1: blocklist check (instant, no API call)
+  const norm = term.toLowerCase().trim();
+  for (const blocked of BLOCKLIST) {
+    if (norm.includes(blocked)) return false;
+  }
+
+  // Layer 2: cache check
+  if (moderationCache.has(term)) return moderationCache.get(term);
+
+  // Layer 3: AI moderation
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 10,
+        system: `You are a content moderator for a live public display screen at an accessibility and inclusion trade show.
+Your job: decide if a company name submitted by an audience member is safe to display publicly.
+REJECT if the submission contains: profanity, slurs, hate speech, discriminatory language, sexually explicit content, or anything offensive or inappropriate for a professional public setting.
+ACCEPT genuine company names, even misspelled ones.
+Respond with a single word only: SAFE or BLOCK. No explanation.`,
+        messages: [{ role: 'user', content: `Company name submitted: "${term}"` }],
+      }),
+    });
+
+    if (!res.ok) {
+      // If AI moderation fails, fail open (allow) but log it
+      console.warn(`Moderation API error for "${term}": ${res.status} — allowing through`);
+      moderationCache.set(term, true);
+      return true;
+    }
+
+    const data = await res.json();
+    const verdict = data.content?.[0]?.text?.trim().toUpperCase();
+    const safe = verdict === 'SAFE';
+    moderationCache.set(term, safe);
+    if (!safe) console.info(`Moderation blocked: "${term}"`);
+    return safe;
+
+  } catch (e) {
+    // Network error — fail open, don't break the display
+    console.warn(`Moderation failed for "${term}": ${e.message} — allowing through`);
+    moderationCache.set(term, true);
+    return true;
+  }
+}
+
+// Runs moderation on all unique terms in the frequency map.
+// Returns a filtered map with blocked terms removed.
+async function moderateFreqMap(freqMap) {
+  const filtered = {};
+  const checks = Object.keys(freqMap).map(async term => {
+    const safe = await isTermSafe(term);
+    if (safe) filtered[term] = freqMap[term];
+  });
+  await Promise.all(checks);
+  return filtered;
+}
+
+// ─── TEXT MEASUREMENT ─────────────────────────────────────────────────────────
+const _canvas = document.getElementById('measure-canvas');
+const _ctx = _canvas.getContext('2d');
+
+function measureText(text, fontSize, weight) {
+  _ctx.font = `${weight} ${fontSize}px Montserrat, sans-serif`;
+  return _ctx.measureText(text).width;
+}
+
+// ─── NORMALISATION ────────────────────────────────────────────────────────────
+function normalise(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+  return raw.trim().toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/[&+]/g, 'and')
+    .replace(/[^a-z0-9 '.\-]/g, '')
+    .replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '')
+    .trim() || null;
+}
+
+const ALIASES = {
+  'coca cola':              'Coca-Cola',
+  'coca-cola':              'Coca-Cola',
+  'cocacola':               'Coca-Cola',
+  'coke':                   'Coca-Cola',
+  'amazon':                 'Amazon',
+  'aws':                    'Amazon',
+  'microsoft':              'Microsoft',
+  'adidas':                 'Adidas',
+  'ey':                     'EY',
+  'ernst and young':        'EY',
+  'ernst young':            'EY',
+  'apple':                  'Apple',
+  'unilever':               'Unilever',
+  'nike':                   'Nike',
+  'deloitte':               'Deloitte',
+  'ibm':                    'IBM',
+  'accenture':              'Accenture',
+  'kpmg':                   'KPMG',
+  'sainsburys':             "Sainsbury's",
+  'sainsbury':              "Sainsbury's",
+  "sainsbury's":            "Sainsbury's",
+  'google':                 'Google',
+  'alphabet':               'Google',
+  'vodafone':               'Vodafone',
+  'pwc':                    'PwC',
+  'pricewaterhousecoopers': 'PwC',
+};
+
+function canonical(raw) {
+  const norm = normalise(raw);
+  if (!norm) return null;
+  return ALIASES[norm] || (norm.charAt(0).toUpperCase() + norm.slice(1));
+}
+
+function buildFreqMap(values) {
+  const map = {};
+  for (const v of values) {
+    const key = canonical(v);
+    if (!key) continue;
+    map[key] = (map[key] || 0) + 1;
+  }
+  return map;
+}
+
+// ─── ORDINAL HELPER ───────────────────────────────────────────────────────────
+function ordinal(n) {
+  const s = ['th','st','nd','rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+// ─── HUBSPOT FETCH ────────────────────────────────────────────────────────────
+async function fetchListContacts() {
+  const allValues = [];
+  let after = null;
+
+  while (allValues.length < CONFIG.maxContacts) {
+    const body = {
+      filterGroups: [{ filters: [{ propertyName: CONFIG.property, operator: 'HAS_PROPERTY' }] }],
+      properties: [CONFIG.property],
+      limit: 100,
+    };
+    if (after) body.after = after;
+
+    const res = await fetch(`${CONFIG.proxyBase}/crm/v3/objects/contacts/search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Authorization header is added by the Cloudflare Worker server-side
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) throw new Error(`HubSpot ${res.status}: ${res.statusText}`);
+    const data = await res.json();
+
+    for (const c of (data.results || [])) {
+      const val = c.properties?.[CONFIG.property];
+      if (val) allValues.push(val);
+    }
+
+    after = data.paging?.next?.after || null;
+    if (!after) break;
+  }
+  return allValues;
+}
+
+// ─── CLOUD LAYOUT ─────────────────────────────────────────────────────────────
+function layoutCloud(freqMap, W, H) {
+  const entries = Object.entries(freqMap).sort((a, b) => b[1] - a[1]).slice(0, 50);
+  if (!entries.length) return [];
+
+  const maxC = entries[0][1];
+  const minC = entries[entries.length - 1][1];
+  const range = maxC - minC || 1;
+
+  const sized = entries.map(([word, count]) => {
+    const ratio = (count - minC) / range;
+    const fontSize = Math.round(18 + ratio * 68);
+    const weight = ratio > 0.6 ? 800 : ratio > 0.3 ? 700 : 600;
+    const w = measureText(word, fontSize, weight) + 8;
+    const h = fontSize * 1.3;
+    return { word, count, fontSize, weight, ratio, w, h };
+  });
+
+  const placed = [];
+  const boxes = [];
+  const PAD_X = 10, PAD_Y = 8;
+  const cx = W / 2, cy = H / 2;
+
+  for (const item of sized) {
+    let px = null, py = null;
+    const maxR = Math.min(W, H) * 0.5;
+
+    for (let r = 0; r <= maxR && px === null; r += 3) {
+      const steps = r === 0 ? 1 : Math.max(16, Math.round(2 * Math.PI * r / 12));
+      for (let s = 0; s < steps; s++) {
+        const angle = (s / steps) * Math.PI * 2;
+        const x = cx + r * Math.cos(angle) - item.w / 2;
+        const y = cy + r * Math.sin(angle) - item.h / 2;
+
+        if (x < 4 || y < 4 || x + item.w > W - 4 || y + item.h > H - 4) continue;
+
+        const collides = boxes.some(b =>
+          x < b.x + b.w + PAD_X && x + item.w + PAD_X > b.x &&
+          y < b.y + b.h + PAD_Y && y + item.h + PAD_Y > b.y
+        );
+
+        if (!collides) { px = x; py = y; break; }
+      }
+    }
+
+    if (px !== null) {
+      boxes.push({ x: px, y: py, w: item.w, h: item.h });
+      placed.push({ ...item, x: px, y: py });
+    }
+  }
+  return placed;
+}
+
+// ─── COLOUR ───────────────────────────────────────────────────────────────────
+function colorForRatio(ratio, rank) {
+  if (rank === 0) return '#FF0998';
+  const stops = [
+    [0.0, [107, 43,  170]],
+    [0.4, [149, 70,  219]],
+    [0.8, [9,   220, 160]],
+    [1.0, [9,   255, 185]],
+  ];
+  for (let i = 1; i < stops.length; i++) {
+    if (ratio <= stops[i][0]) {
+      const [t0, c0] = stops[i-1], [t1, c1] = stops[i];
+      const t = (ratio - t0) / (t1 - t0);
+      return `rgb(${Math.round(c0[0]+t*(c1[0]-c0[0]))},${Math.round(c0[1]+t*(c1[1]-c0[1]))},${Math.round(c0[2]+t*(c1[2]-c0[2]))})`;
+    }
+  }
+  return '#09FFB9';
+}
+
+// ─── RENDER CLOUD (aria-hidden — visual only) ─────────────────────────────────
+let currentWords = new Map();
+
+function renderCloud(placedWords) {
+  const stage = document.getElementById('cloud-stage');
+  document.getElementById('status-overlay').classList.add('hidden');
+
+  const incoming = new Set(placedWords.map(w => w.word));
+
+  for (const [word, el] of currentWords.entries()) {
+    if (!incoming.has(word)) {
+      el.classList.remove('visible');
+      setTimeout(() => { el.remove(); currentWords.delete(word); }, 600);
+    }
+  }
+
+  placedWords.forEach((item, rank) => {
+    const color = colorForRatio(item.ratio, rank);
+    const glow = rank === 0
+      ? 'drop-shadow(0 0 20px rgba(255,9,152,0.65))'
+      : item.ratio > 0.65
+        ? 'drop-shadow(0 0 10px rgba(9,255,185,0.35))'
+        : 'none';
+
+    let el = currentWords.get(item.word);
+    if (!el) {
+      el = document.createElement('span');
+      el.className = 'cloud-word';
+      el.textContent = item.word;
+      // Cloud words are decorative — leaderboard carries the accessible content
+      el.setAttribute('aria-hidden', 'true');
+      stage.appendChild(el);
+      currentWords.set(item.word, el);
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('visible')));
+    } else {
+      el.classList.add('visible');
+    }
+
+    el.style.cssText = `
+      left: ${item.x}px; top: ${item.y}px;
+      font-size: ${item.fontSize}px; font-weight: ${item.weight};
+      color: ${color}; filter: ${glow};
+      letter-spacing: ${item.ratio > 0.5 ? '-0.02em' : '0'};
+    `;
+  });
+}
+
+// ─── RENDER LEADERBOARD (fully accessible) ────────────────────────────────────
+function renderLeaderboard(freqMap) {
+  const entries = Object.entries(freqMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const maxCount = entries[0]?.[1] || 1;
+  const list = document.getElementById('lb-list');
+  list.innerHTML = '';
+
+  entries.forEach(([name, count], i) => {
+    const rank = i + 1;
+    const rankClass = rank <= 3 ? `rank-${rank}` : '';
+    const pct = Math.round((count / maxCount) * 100);
+    const barClass = rank > 3 ? 'lb-bar-other' : '';
+    const voteLabel = `${count} vote${count !== 1 ? 's' : ''}`;
+
+    const li = document.createElement('li');
+    li.className = rankClass;
+    // Full descriptive label read by screen readers: "1st place, Coca-Cola, 18 votes"
+    li.setAttribute('aria-label', `${ordinal(rank)} place, ${name}, ${voteLabel}`);
+    li.setAttribute('tabindex', '0');
+
+    li.innerHTML = `
+      <span class="lb-rank" aria-hidden="true">${rank}</span>
+      <span class="lb-name" aria-hidden="true">${name}</span>
+      <span class="lb-count" aria-hidden="true">${count}</span>
+      <div class="lb-bar-wrap" aria-hidden="true">
+        <div class="lb-bar ${barClass}" style="width:${pct}%"></div>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function updateStats(freqMap, total) {
+  const entries = Object.entries(freqMap).sort((a, b) => b[1] - a[1]);
+  document.getElementById('stat-responses').textContent = total;
+  document.getElementById('stat-companies').textContent = entries.length;
+  document.getElementById('stat-leader').textContent = entries[0]?.[0] || '—';
+}
+
+// ─── SCREEN READER ANNOUNCEMENTS ─────────────────────────────────────────────
+function announce(message, priority = 'polite') {
+  const el = document.getElementById(
+    priority === 'assertive' ? 'sr-announcer' : 'sr-status'
+  );
+  // Clear then set — ensures re-announcement even if text is identical
+  el.textContent = '';
+  requestAnimationFrame(() => { el.textContent = message; });
+}
+
+function buildAnnouncement(freqMap, total) {
+  const entries = Object.entries(freqMap).sort((a, b) => b[1] - a[1]);
+  if (!entries.length) return 'No responses yet.';
+  const leader = entries[0];
+  const unique = entries.length;
+  return `Results updated. ${leader[0]} is leading with ${leader[1]} vote${leader[1] !== 1 ? 's' : ''}. ` +
+         `${total} total response${total !== 1 ? 's' : ''} across ${unique} ` +
+         `${unique !== 1 ? 'companies' : 'company'} named.`;
+}
+
+function showError(msg) {
+  const o = document.getElementById('status-overlay');
+  o.innerHTML = `<span style="color:#FF6B6B;font-size:13px">⚠ ${msg}</span>`;
+  o.classList.remove('hidden');
+  announce(`Error loading results: ${msg}`, 'assertive');
+}
+
+// ─── COUNTDOWN ────────────────────────────────────────────────────────────────
+let countdownSecs = CONFIG.refreshSeconds;
+let countdownTimer = null;
+
+function startCountdown() {
+  countdownSecs = CONFIG.refreshSeconds;
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    countdownSecs = Math.max(0, countdownSecs - 1);
+    document.getElementById('countdown-bar').style.width =
+      ((countdownSecs / CONFIG.refreshSeconds) * 100) + '%';
+    document.getElementById('refresh-label').textContent =
+      countdownSecs > 0 ? `Refreshing in ${countdownSecs}s` : 'Refreshing…';
+  }, 1000);
+}
+
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
+async function fetchAndRender() {
+  try {
+    announce('Loading latest results.', 'polite');
+
+    const values = await fetchListContacts();
+    const rawMap = buildFreqMap(values);
+
+    // Run both moderation layers before rendering anything
+    const freqMap = await moderateFreqMap(rawMap);
+
+    const stage = document.getElementById('cloud-stage');
+    const W = stage.clientWidth;
+    const H = stage.clientHeight;
+
+    const placed = layoutCloud(freqMap, W, H);
+    renderCloud(placed);
+    renderLeaderboard(freqMap);
+    updateStats(freqMap, values.length);
+
+    // Announce summary to screen readers
+    announce(buildAnnouncement(freqMap, values.length), 'assertive');
+
+    startCountdown();
+  } catch (err) {
+    showError(err.message);
+    startCountdown();
+  }
+}
+
+fetchAndRender();
+setInterval(fetchAndRender, CONFIG.refreshSeconds * 1000);
+
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    for (const el of currentWords.values()) { el.remove(); }
+    currentWords.clear();
+    fetchAndRender();
+  }, 300);
+});
+</script>
+</body>
+</html>

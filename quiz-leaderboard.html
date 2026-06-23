@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#210346">
+<title>Most Accessible Company — Live Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black:  #210346;
+    --indigo: #370178;
+    --cyan:   #09FFB9;
+    --white:  #FCEFFF;
+    --slate:  #3a0f6b;
+    --muted:  #6B2BAA;
+    --pink:   #FF0998;
+    --safe:   max(env(safe-area-inset-bottom), 16px);
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  html {
+    background: var(--black);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--slate);
+    position: sticky;
+    top: 0;
+    background: var(--black);
+    z-index: 10;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    opacity: 0.8;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-size: clamp(17px, 4.5vw, 22px);
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    max-width: 32ch;
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 12px;
+  }
+
+  .response-count {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .response-count strong {
+    color: var(--white);
+    font-size: 15px;
+  }
+
+  .live-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(9,255,185,0.08);
+    border: 1px solid rgba(9,255,185,0.2);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    flex-shrink: 0;
+  }
+
+  .pulse-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cyan);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.3; transform: scale(0.6); }
+  }
+
+  /* ── Main content ── */
+  main {
+    flex: 1;
+    padding: 20px 24px 0;
+  }
+
+  /* ── Leaderboard list ── */
+  #lb-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 24px;
+  }
+
+  #lb-list li {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 14px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.4s ease, border-color 0.4s ease;
+    cursor: default;
+  }
+
+  #lb-list li:focus {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+  }
+
+  /* Top 3 treatments */
+  #lb-list li.rank-1 {
+    background: rgba(255,9,152,0.08);
+    border-color: rgba(255,9,152,0.3);
+  }
+  #lb-list li.rank-2 {
+    background: rgba(9,255,185,0.06);
+    border-color: rgba(9,255,185,0.2);
+  }
+  #lb-list li.rank-3 {
+    background: rgba(149,70,219,0.06);
+    border-color: rgba(149,70,219,0.2);
+  }
+
+  /* Rank number / medal */
+  .lb-rank {
+    grid-row: 1 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 800;
+    background: rgba(255,255,255,0.05);
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .rank-1 .lb-rank { background: rgba(255,9,152,0.15); color: var(--pink); font-size: 18px; }
+  .rank-2 .lb-rank { background: rgba(9,255,185,0.12); color: var(--cyan); }
+  .rank-3 .lb-rank { background: rgba(149,70,219,0.12); color: #9546DB; }
+
+  .lb-name {
+    font-size: clamp(15px, 4vw, 18px);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.2;
+    align-self: end;
+  }
+
+  .rank-1 .lb-name { font-weight: 800; font-size: clamp(17px, 4.5vw, 21px); }
+
+  .lb-votes {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+    align-self: end;
+    text-align: right;
+  }
+
+  .rank-1 .lb-votes { color: var(--pink); }
+  .rank-2 .lb-votes { color: var(--cyan); }
+
+  /* Progress bar */
+  .lb-bar-wrap {
+    grid-column: 2 / 4;
+    height: 3px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .lb-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.7s ease;
+  }
+
+  .rank-1 .lb-bar { background: linear-gradient(90deg, var(--pink), rgba(255,9,152,0.5)); }
+  .rank-2 .lb-bar { background: linear-gradient(90deg, var(--cyan), rgba(9,255,185,0.5)); }
+  .rank-3 .lb-bar { background: linear-gradient(90deg, #9546DB, rgba(149,70,219,0.5)); }
+  .lb-bar-other   { background: linear-gradient(90deg, var(--muted), rgba(107,43,170,0.4)); }
+
+  /* ── Divider between top 3 and rest ── */
+  .lb-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 10px;
+  }
+
+  .lb-divider span {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .lb-divider::before,
+  .lb-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--slate);
+  }
+
+  /* ── Footer ── */
+  footer {
+    padding: 16px 24px;
+    padding-bottom: calc(16px + var(--safe));
+    border-top: 1px solid var(--slate);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--black);
+    position: sticky;
+    bottom: 0;
+  }
+
+  .refresh-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .refresh-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .countdown-bar-wrap {
+    width: 80px; height: 2px;
+    background: var(--slate);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .countdown-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--muted), var(--cyan));
+    border-radius: 2px;
+    transition: width 1s linear;
+  }
+
+  /* ── Loading / error state ── */
+  #state-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 60px 24px;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--slate);
+    border-top-color: var(--cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- Screen reader live regions -->
+<div id="sr-announcer" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+<header role="banner">
+  <p class="eyebrow" aria-hidden="true">Live audience responses</p>
+  <h1>Which company do you think is the most accessible, globally?</h1>
+  <div class="header-meta">
+    <p class="response-count">
+      <strong id="stat-responses" aria-label="Total responses">—</strong>
+      <span aria-hidden="true"> responses · </span>
+      <span id="stat-companies" aria-label="Companies named">—</span> companies named
+    </p>
+    <div class="live-pill" aria-hidden="true">
+      <div class="pulse-dot"></div>
+      Live
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="state-message" role="status" aria-live="polite">
+    <div class="spinner" aria-hidden="true"></div>
+    <span>Loading results…</span>
+  </div>
+  <ol id="lb-list" aria-label="Companies ranked by number of votes" style="display:none"></ol>
+</main>
+
+<footer role="contentinfo">
+  <div class="refresh-row" aria-hidden="true">
+    <span class="refresh-label" id="refresh-label">Refreshing in 60s</span>
+    <div class="countdown-bar-wrap">
+      <div class="countdown-bar" id="countdown-bar" style="width:100%"></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const CONFIG = {
+  // ── Per-deployment settings ── update these for each client/event ──────────
+  // apiKey is no longer needed here — it lives in the Cloudflare Worker env var
+  listId:         '215',                              // HubSpot active list ID
+  property:       'most_accessible_company_quiz',     // Contact property internal name
+  proxyBase:      'https://hubspot-proxy.mike-64a.workers.dev', // Cloudflare Worker URL
+  // ── Display settings ──────────────────────────────────────────────────────
+  refreshSeconds: 60,
+  maxContacts:    500,
+};
+
+// ─── CONTENT MODERATION ───────────────────────────────────────────────────────
+const BLOCKLIST = new Set([
+  'fuck', 'shit', 'cunt', 'bastard', 'wanker', 'twat', 'arse', 'arsehole',
+  'asshole', 'bitch', 'dick', 'cock', 'prick', 'bollocks', 'bellend',
+  'nigger', 'nigga', 'paki', 'chink', 'spastic', 'retard', 'tranny',
+  'faggot', 'dyke', 'kike', 'spic', 'wetback', 'kraut', 'nazi', 'hitler', 'kkk',
+]);
+
+const moderationCache = new Map();
+
+async function isTermSafe(term) {
+  const norm = term.toLowerCase().trim();
+  for (const blocked of BLOCKLIST) {
+    if (norm.includes(blocked)) return false;
+  }
+  if (moderationCache.has(term)) return moderationCache.get(term);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 10,
+        system: `You are a content moderator for a live public display at an accessibility and inclusion trade show.
+REJECT: profanity, slurs, hate speech, discriminatory or offensive language.
+ACCEPT: genuine company names, even if misspelled.
+Respond with one word only: SAFE or BLOCK.`,
+        messages: [{ role: 'user', content: `Company name: "${term}"` }],
+      }),
+    });
+    if (!res.ok) { moderationCache.set(term, true); return true; }
+    const data = await res.json();
+    const safe = data.content?.[0]?.text?.trim().toUpperCase() === 'SAFE';
+    moderationCache.set(term, safe);
+    return safe;
+  } catch {
+    moderationCache.set(term, true);
+    return true;
+  }
+}
+
+async function moderateFreqMap(freqMap) {
+  const filtered = {};
+  await Promise.all(Object.keys(freqMap).map(async term => {
+    if (await isTermSafe(term)) filtered[term] = freqMap[term];
+  }));
+  return filtered;
+}
+
+// ─── NORMALISATION ────────────────────────────────────────────────────────────
+function normalise(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+  return raw.trim().toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/[&+]/g, 'and')
+    .replace(/[^a-z0-9 '.\-]/g, '')
+    .replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '')
+    .trim() || null;
+}
+
+const ALIASES = {
+  'coca cola':              'Coca-Cola',
+  'coca-cola':              'Coca-Cola',
+  'cocacola':               'Coca-Cola',
+  'coke':                   'Coca-Cola',
+  'amazon':                 'Amazon',
+  'aws':                    'Amazon',
+  'microsoft':              'Microsoft',
+  'adidas':                 'Adidas',
+  'ey':                     'EY',
+  'ernst and young':        'EY',
+  'ernst young':            'EY',
+  'apple':                  'Apple',
+  'unilever':               'Unilever',
+  'nike':                   'Nike',
+  'deloitte':               'Deloitte',
+  'ibm':                    'IBM',
+  'accenture':              'Accenture',
+  'kpmg':                   'KPMG',
+  'sainsburys':             "Sainsbury's",
+  'sainsbury':              "Sainsbury's",
+  "sainsbury's":            "Sainsbury's",
+  'google':                 'Google',
+  'alphabet':               'Google',
+  'vodafone':               'Vodafone',
+  'pwc':                    'PwC',
+  'pricewaterhousecoopers': 'PwC',
+};
+
+function canonical(raw) {
+  const norm = normalise(raw);
+  if (!norm) return null;
+  return ALIASES[norm] || (norm.charAt(0).toUpperCase() + norm.slice(1));
+}
+
+function buildFreqMap(values) {
+  const map = {};
+  for (const v of values) {
+    const key = canonical(v);
+    if (!key) continue;
+    map[key] = (map[key] || 0) + 1;
+  }
+  return map;
+}
+
+// ─── ORDINAL ──────────────────────────────────────────────────────────────────
+function ordinal(n) {
+  const s = ['th','st','nd','rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+// ─── HUBSPOT FETCH ────────────────────────────────────────────────────────────
+async function fetchListContacts() {
+  const allValues = [];
+  let after = null;
+
+  while (allValues.length < CONFIG.maxContacts) {
+    const body = {
+      filterGroups: [{ filters: [{ propertyName: CONFIG.property, operator: 'HAS_PROPERTY' }] }],
+      properties: [CONFIG.property],
+      limit: 100,
+    };
+    if (after) body.after = after;
+
+    const res = await fetch(`${CONFIG.proxyBase}/crm/v3/objects/contacts/search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Authorization header is added by the Cloudflare Worker server-side
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) throw new Error(`HubSpot ${res.status}: ${res.statusText}`);
+    const data = await res.json();
+
+    for (const c of (data.results || [])) {
+      const val = c.properties?.[CONFIG.property];
+      if (val) allValues.push(val);
+    }
+
+    after = data.paging?.next?.after || null;
+    if (!after) break;
+  }
+  return allValues;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderLeaderboard(freqMap, total) {
+  const entries = Object.entries(freqMap).sort((a, b) => b[1] - a[1]);
+  const maxCount = entries[0]?.[1] || 1;
+  const list = document.getElementById('lb-list');
+  const stateMsg = document.getElementById('state-message');
+
+  if (!entries.length) {
+    stateMsg.style.display = 'flex';
+    stateMsg.innerHTML = '<span>No responses yet — be the first!</span>';
+    list.style.display = 'none';
+    return;
+  }
+
+  stateMsg.style.display = 'none';
+  list.style.display = 'flex';
+  list.innerHTML = '';
+
+  entries.forEach(([name, count], i) => {
+    const rank = i + 1;
+    const rankClass = rank <= 3 ? `rank-${rank}` : '';
+    const pct = Math.round((count / maxCount) * 100);
+    const barClass = rank > 3 ? 'lb-bar-other' : '';
+    const voteLabel = `${count} vote${count !== 1 ? 's' : ''}`;
+    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+
+    // Insert divider between top 3 and the rest
+    if (rank === 4) {
+      const divider = document.createElement('li');
+      divider.setAttribute('role', 'separator');
+      divider.setAttribute('aria-hidden', 'true');
+      divider.innerHTML = `<div class="lb-divider" style="grid-column:1/4"><span>Also mentioned</span></div>`;
+      divider.style.cssText = 'background:none;border:none;padding:0;display:block;';
+      list.appendChild(divider);
+    }
+
+    const li = document.createElement('li');
+    li.className = rankClass;
+    li.setAttribute('aria-label', `${ordinal(rank)} place, ${name}, ${voteLabel}`);
+    li.setAttribute('tabindex', '0');
+
+    li.innerHTML = `
+      <div class="lb-rank" aria-hidden="true">${medal}</div>
+      <span class="lb-name" aria-hidden="true">${name}</span>
+      <span class="lb-votes" aria-hidden="true">${voteLabel}</span>
+      <div class="lb-bar-wrap" aria-hidden="true">
+        <div class="lb-bar ${barClass}" style="width:${pct}%"></div>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+
+  // Update stats
+  document.getElementById('stat-responses').textContent = total;
+  document.getElementById('stat-companies').textContent = entries.length;
+
+  // Polite announcement — fires once on load and on each refresh
+  const leader = entries[0];
+  const top3 = entries.slice(0, 3)
+    .map((e, i) => `${ordinal(i+1)}: ${e[0]} with ${e[1]} vote${e[1]!==1?'s':''}`)
+    .join(', ');
+  announce(`Results updated. ${total} total responses. Top results: ${top3}.`);
+}
+
+function announce(msg) {
+  const el = document.getElementById('sr-announcer');
+  el.textContent = '';
+  requestAnimationFrame(() => { el.textContent = msg; });
+}
+
+function showError(msg) {
+  const stateMsg = document.getElementById('state-message');
+  stateMsg.style.display = 'flex';
+  stateMsg.innerHTML = `<span style="color:#FF6B6B">⚠ ${msg}</span><span style="font-size:12px;color:var(--muted)">Pull down to retry</span>`;
+  document.getElementById('lb-list').style.display = 'none';
+}
+
+// ─── COUNTDOWN ────────────────────────────────────────────────────────────────
+let countdownSecs = CONFIG.refreshSeconds;
+let countdownTimer = null;
+
+function startCountdown() {
+  countdownSecs = CONFIG.refreshSeconds;
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    countdownSecs = Math.max(0, countdownSecs - 1);
+    document.getElementById('countdown-bar').style.width =
+      ((countdownSecs / CONFIG.refreshSeconds) * 100) + '%';
+    document.getElementById('refresh-label').textContent =
+      countdownSecs > 0 ? `Refreshing in ${countdownSecs}s` : 'Refreshing…';
+  }, 1000);
+}
+
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
+async function fetchAndRender() {
+  try {
+    const values = await fetchListContacts();
+    const rawMap = buildFreqMap(values);
+    const freqMap = await moderateFreqMap(rawMap);
+    renderLeaderboard(freqMap, values.length);
+    startCountdown();
+  } catch (err) {
+    showError(err.message);
+    startCountdown();
+  }
+}
+
+fetchAndRender();
+setInterval(fetchAndRender, CONFIG.refreshSeconds * 1000);
+</script>
+</body>
+</html>
