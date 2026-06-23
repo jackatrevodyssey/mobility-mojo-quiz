@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#210346">
 <title>Most Accessible Company — Live Results</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -122,6 +122,20 @@
   main {
     flex: 1;
     padding: 20px 24px 0;
+  }
+
+
+  /* ── Leaderboard heading ── */
+  .lb-title {
+    all: unset;
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding-top: 20px;
   }
 
   /* ── Leaderboard list ── */
@@ -326,10 +340,13 @@
   <p class="eyebrow" aria-hidden="true">Live audience responses</p>
   <h1>Which company do you think is the most accessible, globally?</h1>
   <div class="header-meta">
-    <p class="response-count">
-      <strong id="stat-responses" aria-label="Total responses">—</strong>
+    <p class="response-count" aria-live="polite" aria-atomic="true">
+      <!-- Full sentence constructed for screen readers -->
+      <span class="sr-only" id="stat-summary">Loading results.</span>
+      <!-- Visual display only -->
+      <strong id="stat-responses" aria-hidden="true">—</strong>
       <span aria-hidden="true"> responses · </span>
-      <span id="stat-companies" aria-label="Companies named">—</span> companies named
+      <span id="stat-companies" aria-hidden="true">—</span><span aria-hidden="true"> companies named</span>
     </p>
     <div class="live-pill" aria-hidden="true">
       <div class="pulse-dot"></div>
@@ -339,11 +356,17 @@
 </header>
 
 <main>
-  <div id="state-message" role="status" aria-live="polite">
-    <div class="spinner" aria-hidden="true"></div>
-    <span>Loading results…</span>
-  </div>
-  <ol id="lb-list" aria-label="Companies ranked by number of votes" style="display:none"></ol>
+  <!-- Section landmark with visible h2 heading — allows screen reader heading navigation -->
+  <section aria-labelledby="lb-heading">
+    <h2 id="lb-heading" class="lb-title">Top responses</h2>
+    <div id="state-message" role="status" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <span>Loading results…</span>
+    </div>
+    <!-- Top 3 list — aria-label distinguishes it from the "also mentioned" list -->
+    <ol id="lb-list" aria-label="Top companies by number of votes" style="display:none"></ol>
+    <!-- "Also mentioned" divider and list injected here by JS if there are more than 3 results -->
+  </section>
 </main>
 
 <footer role="contentinfo">
@@ -544,13 +567,18 @@ function renderLeaderboard(freqMap, total) {
     const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
 
     // Insert divider between top 3 and the rest
+    // Rendered outside the <ol> to preserve list semantics
     if (rank === 4) {
-      const divider = document.createElement('li');
-      divider.setAttribute('role', 'separator');
+      const divider = document.createElement('div');
       divider.setAttribute('aria-hidden', 'true');
-      divider.innerHTML = `<div class="lb-divider" style="grid-column:1/4"><span>Also mentioned</span></div>`;
-      divider.style.cssText = 'background:none;border:none;padding:0;display:block;';
-      list.appendChild(divider);
+      divider.innerHTML = `<div class="lb-divider"><span>Also mentioned</span></div>`;
+      list.parentNode.insertBefore(divider, list.nextSibling);
+      // Move remaining items to a new list after the divider
+      const restList = document.createElement('ol');
+      restList.setAttribute('aria-label', 'Other companies mentioned');
+      restList.style.cssText = 'list-style:none;display:flex;flex-direction:column;gap:10px;padding-bottom:24px;';
+      divider.after(restList);
+      list._restList = restList;
     }
 
     const li = document.createElement('li');
@@ -566,19 +594,22 @@ function renderLeaderboard(freqMap, total) {
         <div class="lb-bar ${barClass}" style="width:${pct}%"></div>
       </div>
     `;
-    list.appendChild(li);
+    if (rank >= 4 && list._restList) {
+      list._restList.appendChild(li);
+    } else {
+      list.appendChild(li);
+    }
   });
 
-  // Update stats
+  // Update visual stats
   document.getElementById('stat-responses').textContent = total;
   document.getElementById('stat-companies').textContent = entries.length;
+  // Update screen reader summary as a coherent sentence
+  document.getElementById('stat-summary').textContent =
+    `${total} total response${total !== 1 ? 's' : ''} across ${entries.length} ` +
+    `${entries.length !== 1 ? 'companies' : 'company'} named.`;
 
-  // Polite announcement — fires once on load and on each refresh
-  const leader = entries[0];
-  const top3 = entries.slice(0, 3)
-    .map((e, i) => `${ordinal(i+1)}: ${e[0]} with ${e[1]} vote${e[1]!==1?'s':''}`)
-    .join(', ');
-  announce(`Results updated. ${total} total responses. Top results: ${top3}.`);
+
 }
 
 function announce(msg) {
