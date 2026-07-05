@@ -15,7 +15,8 @@
     --cyan:   #09FFB9;
     --white:  #FCEFFF;
     --slate:  #3a0f6b;
-    --muted:  #6B2BAA;
+    --muted:  #6B2BAA; /* decorative use only (subtle background tints/borders) — fails WCAG contrast as text, do NOT use for text on --black */
+    --lilac:  #A374D9; /* accessible purple for TEXT — ~5.2:1 against --black, passes WCAG AA */
     --pink:   #FF0998;
   }
 
@@ -135,7 +136,7 @@
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--lilac);
     margin-bottom: 16px;
   }
 
@@ -173,13 +174,13 @@
   .lb-rank {
     font-size: 11px;
     font-weight: 800;
-    color: var(--muted);
+    color: var(--lilac);
     text-align: center;
   }
 
   .rank-1 .lb-rank { color: var(--pink); }
   .rank-2 .lb-rank { color: var(--cyan); }
-  .rank-3 .lb-rank { color: #9546DB; }
+  .rank-3 .lb-rank { color: var(--lilac); }
 
   .lb-name {
     font-size: 13px;
@@ -195,7 +196,7 @@
   .lb-count {
     font-size: 13px;
     font-weight: 700;
-    color: var(--muted);
+    color: var(--lilac);
     white-space: nowrap;
   }
 
@@ -220,7 +221,7 @@
   .rank-1 .lb-bar { background: var(--pink); }
   .rank-2 .lb-bar { background: var(--cyan); }
   .rank-3 .lb-bar { background: #9546DB; }
-  .lb-bar-other   { background: var(--muted); }
+  .lb-bar-other   { background: var(--lilac); }
 
   /* ── Cloud stage ── */
   #cloud-stage {
@@ -253,7 +254,7 @@
     padding-top: 14px;
     border-top: 1px solid var(--slate);
     font-size: 11px;
-    color: var(--muted);
+    color: var(--lilac);
   }
 
   .footer-stats { display: flex; gap: 28px; }
@@ -272,7 +273,7 @@
     font-size: 9px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--lilac);
   }
 
   .refresh-info {
@@ -291,7 +292,7 @@
 
   .countdown-bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--muted), var(--cyan));
+    background: linear-gradient(90deg, var(--lilac), var(--cyan));
     border-radius: 2px;
     transition: width 1s linear;
   }
@@ -300,7 +301,7 @@
     font-size: 9px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--lilac);
   }
 
   /* ── Status overlay ── */
@@ -311,7 +312,7 @@
     align-items: center;
     justify-content: center;
     gap: 14px;
-    color: var(--muted);
+    color: var(--lilac);
     font-size: 14px;
     pointer-events: none;
     transition: opacity 0.4s ease;
@@ -668,22 +669,20 @@ function layoutCloud(freqMap, W, H) {
 }
 
 // ─── COLOUR ───────────────────────────────────────────────────────────────────
+// Accessible 2-stop gradient: lilac (~5.2:1 against --black) → cyan (~13.8:1).
+// Replaces the old 4-stop scheme, which dipped into --muted purple territory
+// (~2.2:1 — fails WCAG AA) for low-frequency words. Linear RGB interpolation
+// between these two endpoints stays comfortably above 4.5:1 at every point
+// (midpoint checks out at ~8:1), so there's no low-contrast dead zone anymore.
+const CLOUD_LOW  = [163, 116, 217]; // #A374D9 — lilac
+const CLOUD_HIGH = [9, 255, 185];   // #09FFB9 — brand cyan
+
 function colorForRatio(ratio, rank) {
-  if (rank === 0) return '#FF0998';
-  const stops = [
-    [0.0, [107, 43,  170]],
-    [0.4, [149, 70,  219]],
-    [0.8, [9,   220, 160]],
-    [1.0, [9,   255, 185]],
-  ];
-  for (let i = 1; i < stops.length; i++) {
-    if (ratio <= stops[i][0]) {
-      const [t0, c0] = stops[i-1], [t1, c1] = stops[i];
-      const t = (ratio - t0) / (t1 - t0);
-      return `rgb(${Math.round(c0[0]+t*(c1[0]-c0[0]))},${Math.round(c0[1]+t*(c1[1]-c0[1]))},${Math.round(c0[2]+t*(c1[2]-c0[2]))})`;
-    }
-  }
-  return '#09FFB9';
+  if (rank === 0) return '#FF0998'; // pink — reserved for the top answer, ~4.96:1
+  const r = Math.round(CLOUD_LOW[0] + ratio * (CLOUD_HIGH[0] - CLOUD_LOW[0]));
+  const g = Math.round(CLOUD_LOW[1] + ratio * (CLOUD_HIGH[1] - CLOUD_LOW[1]));
+  const b = Math.round(CLOUD_LOW[2] + ratio * (CLOUD_HIGH[2] - CLOUD_LOW[2]));
+  return `rgb(${r},${g},${b})`;
 }
 
 // ─── RENDER CLOUD (aria-hidden — visual only) ─────────────────────────────────
