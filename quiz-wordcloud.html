@@ -16,7 +16,7 @@
     --white:  #FCEFFF;
     --slate:  #3a0f6b;
     --muted:  #6B2BAA; /* decorative use only (subtle background tints/borders) — fails WCAG contrast as text, do NOT use for text on --black */
-    --lilac:  #A374D9; /* accessible purple for TEXT — ~5.2:1 against --black, passes WCAG AA */
+    --lilac:  #C9A6F0; /* accessible purple for TEXT — ~8.8:1 against --black, comfortably AAA, not just a bare AA pass */
     --pink:   #FF0998;
   }
 
@@ -626,8 +626,8 @@ function layoutCloud(freqMap, W, H) {
 
   const sized = entries.map(([word, count]) => {
     const ratio = (count - minC) / range;
-    const fontSize = Math.round(18 + ratio * 68);
-    const weight = ratio > 0.6 ? 800 : ratio > 0.3 ? 700 : 600;
+    const fontSize = Math.round(20 + ratio * 64);
+    const weight = ratio > 0.6 ? 800 : 700; // no thin (600) tier — every word stays legible at a distance
     const w = measureText(word, fontSize, weight) + 8;
     const h = fontSize * 1.3;
     return { word, count, fontSize, weight, ratio, w, h };
@@ -669,12 +669,13 @@ function layoutCloud(freqMap, W, H) {
 }
 
 // ─── COLOUR ───────────────────────────────────────────────────────────────────
-// Accessible 2-stop gradient: lilac (~5.2:1 against --black) → cyan (~13.8:1).
+// Accessible 2-stop gradient: lilac (~8.8:1 against --black) → cyan (~13.8:1).
 // Replaces the old 4-stop scheme, which dipped into --muted purple territory
 // (~2.2:1 — fails WCAG AA) for low-frequency words. Linear RGB interpolation
-// between these two endpoints stays comfortably above 4.5:1 at every point
-// (midpoint checks out at ~8:1), so there's no low-contrast dead zone anymore.
-const CLOUD_LOW  = [163, 116, 217]; // #A374D9 — lilac
+// between these two endpoints stays well above 4.5:1 at every point (midpoint
+// checks out at ~10.2:1) — comfortable margin for a screen read from a
+// distance, not just a bare spec-minimum pass.
+const CLOUD_LOW  = [201, 166, 240]; // #C9A6F0 — lilac
 const CLOUD_HIGH = [9, 255, 185];   // #09FFB9 — brand cyan
 
 function colorForRatio(ratio, rank) {
