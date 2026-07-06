@@ -15,8 +15,7 @@
     --cyan:   #09FFB9;
     --white:  #FCEFFF;
     --slate:  #3a0f6b;
-    --muted:  #6B2BAA; /* decorative use only (subtle background tints/borders) — fails WCAG contrast as text, do NOT use for text on --black */
-    --lilac:  #C9A6F0; /* accessible purple for TEXT — ~8.8:1 against --black, comfortably AAA, not just a bare AA pass */
+    --muted:  #6B2BAA; /* decorative use only (subtle background tints/borders) — not used for text or meaningful graphics */
     --pink:   #FF0998;
   }
 
@@ -132,11 +131,11 @@
   }
 
   .lb-title {
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--lilac);
+    color: var(--white);
     margin-bottom: 16px;
   }
 
@@ -152,10 +151,10 @@
 
   #lb-list li {
     display: grid;
-    grid-template-columns: 22px 1fr auto;
+    grid-template-columns: 28px 1fr auto;
     align-items: center;
     gap: 10px;
-    padding: 8px 10px;
+    padding: 10px 10px;
     border-radius: 8px;
     background: rgba(255,255,255,0.03);
     border: 1px solid transparent;
@@ -172,19 +171,19 @@
   #lb-list li.rank-3 { background: rgba(149,70,219,0.06); border-color: rgba(149,70,219,0.15); }
 
   .lb-rank {
-    font-size: 11px;
+    font-size: 16px;
     font-weight: 800;
-    color: var(--lilac);
+    color: var(--white);
     text-align: center;
   }
 
   .rank-1 .lb-rank { color: var(--pink); }
   .rank-2 .lb-rank { color: var(--cyan); }
-  .rank-3 .lb-rank { color: var(--lilac); }
+  .rank-3 .lb-rank { color: var(--white); }
 
   .lb-name {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     color: var(--white);
     white-space: nowrap;
     overflow: hidden;
@@ -194,9 +193,9 @@
   .rank-1 .lb-name { font-weight: 800; }
 
   .lb-count {
-    font-size: 13px;
+    font-size: 17px;
     font-weight: 700;
-    color: var(--lilac);
+    color: var(--white);
     white-space: nowrap;
   }
 
@@ -221,7 +220,7 @@
   .rank-1 .lb-bar { background: var(--pink); }
   .rank-2 .lb-bar { background: var(--cyan); }
   .rank-3 .lb-bar { background: #9546DB; }
-  .lb-bar-other   { background: var(--lilac); }
+  .lb-bar-other   { background: var(--white); }
 
   /* ── Cloud stage ── */
   #cloud-stage {
@@ -254,7 +253,7 @@
     padding-top: 14px;
     border-top: 1px solid var(--slate);
     font-size: 11px;
-    color: var(--lilac);
+    color: var(--white);
   }
 
   .footer-stats { display: flex; gap: 28px; }
@@ -270,10 +269,10 @@
   }
 
   .stat-label {
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--lilac);
+    color: var(--white);
   }
 
   .refresh-info {
@@ -292,16 +291,16 @@
 
   .countdown-bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--lilac), var(--cyan));
+    background: linear-gradient(90deg, var(--white), var(--cyan));
     border-radius: 2px;
     transition: width 1s linear;
   }
 
   .refresh-label {
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--lilac);
+    color: var(--white);
   }
 
   /* ── Status overlay ── */
@@ -312,7 +311,7 @@
     align-items: center;
     justify-content: center;
     gap: 14px;
-    color: var(--lilac);
+    color: var(--white);
     font-size: 14px;
     pointer-events: none;
     transition: opacity 0.4s ease;
@@ -669,13 +668,12 @@ function layoutCloud(freqMap, W, H) {
 }
 
 // ─── COLOUR ───────────────────────────────────────────────────────────────────
-// Accessible 2-stop gradient: lilac (~8.8:1 against --black) → cyan (~13.8:1).
-// Replaces the old 4-stop scheme, which dipped into --muted purple territory
-// (~2.2:1 — fails WCAG AA) for low-frequency words. Linear RGB interpolation
-// between these two endpoints stays well above 4.5:1 at every point (midpoint
-// checks out at ~10.2:1) — comfortable margin for a screen read from a
-// distance, not just a bare spec-minimum pass.
-const CLOUD_LOW  = [201, 166, 240]; // #C9A6F0 — lilac
+// Accessible 2-stop gradient: warm white (~14:1 against --black) → cyan (~13.8:1).
+// Dropped the lilac accent entirely — accessibility takes priority over the extra hue,
+// and white/cyan/pink are all official Mobility Mojo brand colors, so brand isn't
+// compromised by simplifying to these three. Linear RGB interpolation between these
+// two endpoints stays comfortably above 4.5:1 at every point in the range.
+const CLOUD_LOW  = [252, 239, 255]; // #FCEFFF — brand warm white
 const CLOUD_HIGH = [9, 255, 185];   // #09FFB9 — brand cyan
 
 function colorForRatio(ratio, rank) {
